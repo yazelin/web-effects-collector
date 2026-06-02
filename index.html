@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>網頁特效蒐集器 — Web Effects Collector</title>
+<style>
+  :root{
+    --bg:#07070d; --bg2:#0c0c16; --panel:rgba(20,20,34,.66);
+    --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.16);
+    --txt:#eef0ff; --muted:#9aa0c0; --dim:#6b6f8f;
+    --a1:#7c5cff; --a2:#19d3ff; --a3:#ff5cc8; --ok:#36d399; --warn:#ffd166;
+    --radius:18px; --shadow:0 18px 50px -20px rgba(0,0,0,.7);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:radial-gradient(1200px 800px at 80% -10%, #15102e 0%, transparent 60%),
+               radial-gradient(900px 700px at -10% 10%, #06212b 0%, transparent 55%),
+               var(--bg);
+    color:var(--txt);
+    font-family:"Inter","Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.6; overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--a1);color:#fff}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 22px}
+
+  /* ---------- header ---------- */
+  header.bar{
+    position:sticky;top:0;z-index:40;
+    backdrop-filter:blur(14px) saturate(140%);
+    background:linear-gradient(180deg, rgba(7,7,13,.86), rgba(7,7,13,.55));
+    border-bottom:1px solid var(--line);
+  }
+  .bar .wrap{display:flex;align-items:center;gap:16px;height:64px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.3px;font-size:16px;white-space:nowrap}
+  .brand .dot{width:13px;height:13px;border-radius:50%;
+    background:conic-gradient(from 0deg,var(--a1),var(--a2),var(--a3),var(--a1));
+    box-shadow:0 0 18px var(--a1);animation:spin 6s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .count{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:3px 9px;border-radius:999px}
+  .search{margin-left:auto;position:relative;flex:1;max-width:380px}
+  .search input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--line2);
+    color:var(--txt);border-radius:11px;padding:9px 13px 9px 34px;font-size:14px;outline:none}
+  .search input:focus{border-color:var(--a1);box-shadow:0 0 0 3px rgba(124,92,255,.18)}
+  .search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);opacity:.5}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;min-height:74vh;display:flex;align-items:center;overflow:hidden}
+  #hero-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .hero .veil{position:absolute;inset:0;background:radial-gradient(60% 60% at 50% 40%,transparent,var(--bg) 92%)}
+  .hero .inner{position:relative;z-index:2;padding:90px 0 60px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--a2);
+    border:1px solid rgba(25,211,255,.3);background:rgba(25,211,255,.07);
+    padding:5px 13px;border-radius:999px;letter-spacing:1px}
+  h1{font-size:clamp(34px,6vw,68px);line-height:1.05;margin:18px 0 14px;font-weight:850;letter-spacing:-1px}
+  h1 .grad{background:linear-gradient(110deg,var(--a1) 0%,var(--a2) 45%,var(--a3) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .lead{font-size:clamp(15px,2vw,19px);color:var(--muted);max-width:680px}
+  .heroActions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+
+  /* ---------- buttons ---------- */
+  .btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);
+    background:rgba(255,255,255,.05);color:var(--txt);padding:9px 15px;border-radius:11px;
+    font-size:13.5px;font-weight:600;cursor:pointer;transition:.18s;white-space:nowrap}
+  .btn:hover{border-color:var(--a1);transform:translateY(-1px);background:rgba(124,92,255,.14)}
+  .btn.primary{background:linear-gradient(110deg,var(--a1),var(--a3));border:none;color:#fff;
+    box-shadow:0 10px 26px -10px var(--a1)}
+  .btn.primary:hover{filter:brightness(1.08)}
+  .btn.ghost{background:transparent}
+  .btn.sm{padding:6px 11px;font-size:12.5px}
+
+  /* ---------- sections ---------- */
+  section.block{padding:54px 0}
+  .sectionHead{display:flex;align-items:baseline;gap:14px;margin-bottom:8px;flex-wrap:wrap}
+  .sectionHead h2{font-size:clamp(22px,3vw,30px);margin:0;font-weight:800}
+  .sectionHead .sub{color:var(--dim);font-size:14px}
+  .kicker{color:var(--a2);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+
+  /* ---------- playground ---------- */
+  .pgWrap{border:1px solid var(--line);border-radius:24px;overflow:hidden;background:var(--panel);box-shadow:var(--shadow)}
+  #pg{position:relative;height:440px;background:#05060c}
+  #pg canvas{display:block}
+  .pgBar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:14px 16px;border-top:1px solid var(--line);
+    background:rgba(10,10,18,.7)}
+  .pgBar .pill{border:1px solid var(--line2);background:rgba(255,255,255,.04);color:var(--muted);
+    padding:7px 13px;border-radius:999px;font-size:13px;cursor:pointer;transition:.16s;font-weight:600}
+  .pgBar .pill:hover{color:var(--txt);border-color:var(--a1)}
+  .pgBar .pill.on{background:linear-gradient(110deg,var(--a1),var(--a3));color:#fff;border-color:transparent}
+  .pgStatus{margin-left:auto;font-size:12.5px;color:var(--dim)}
+  .pgStatus b{color:var(--a2)}
+
+  /* ---------- cards ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px;margin-top:22px}
+  .card{position:relative;border:1px solid var(--line);background:var(--panel);border-radius:var(--radius);
+    padding:18px;display:flex;flex-direction:column;gap:11px;transition:.2s;backdrop-filter:blur(6px)}
+  .card:hover{border-color:var(--line2);transform:translateY(-3px);box-shadow:var(--shadow)}
+  .card .toprow{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .card h3{margin:0;font-size:18px;font-weight:750;letter-spacing:.2px}
+  .card .tagline{color:var(--a2);font-size:13px;font-weight:600;margin-top:2px}
+  .card .desc{color:var(--muted);font-size:13.5px;flex:1}
+  .tags{display:flex;flex-wrap:wrap;gap:6px}
+  .tag{font-size:11px;color:var(--dim);border:1px solid var(--line);padding:2px 8px;border-radius:6px}
+  .wow{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim)}
+  .wowbar{flex:1;height:5px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;min-width:60px}
+  .wowbar i{display:block;height:100%;background:linear-gradient(90deg,var(--a2),var(--a1),var(--a3))}
+  .badge{font-size:10.5px;padding:2px 7px;border-radius:6px;border:1px solid;white-space:nowrap}
+  .badge.embed{color:var(--ok);border-color:rgba(54,211,153,.4);background:rgba(54,211,153,.08)}
+  .badge.no{color:var(--dim);border-color:var(--line)}
+  .cardActions{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+  .how{display:none;border-top:1px dashed var(--line2);margin-top:4px;padding-top:10px;
+    font-size:12.5px;color:var(--muted);white-space:pre-wrap}
+  .how.show{display:block}
+  .embedBox{display:none;margin-top:8px;border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:#000}
+  .embedBox.show{display:block}
+  .embedBox iframe{width:100%;height:300px;border:0;display:block}
+  .embedNote{font-size:11px;color:var(--dim);padding:6px 10px;background:rgba(0,0,0,.4)}
+
+  /* ---------- chips ---------- */
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 6px}
+  .chip{font-size:13px;color:var(--muted);border:1px solid var(--line2);background:rgba(255,255,255,.03);
+    padding:7px 13px;border-radius:999px;cursor:pointer;transition:.16s;font-weight:600}
+  .chip:hover{color:var(--txt);border-color:var(--a1)}
+  .chip.on{background:linear-gradient(110deg,var(--a1),var(--a3));color:#fff;border-color:transparent}
+
+  .catGroup{margin-top:30px}
+  .catGroup .catHead{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:750;margin-bottom:2px}
+  .catGroup .catHead .num{font-size:12px;color:var(--dim);font-weight:600;border:1px solid var(--line);padding:1px 8px;border-radius:99px}
+
+  .notice{border:1px solid rgba(255,209,102,.35);background:rgba(255,209,102,.08);color:var(--warn);
+    padding:14px 16px;border-radius:14px;font-size:14px;display:flex;gap:10px;align-items:center}
+  .empty{color:var(--dim);text-align:center;padding:40px;font-size:14px}
+
+  footer{border-top:1px solid var(--line);padding:34px 0 60px;color:var(--dim);font-size:13px;text-align:center}
+  .hidden{display:none !important}
+  @media (max-width:640px){ .search{max-width:none} .brand span.full{display:none} #pg{height:320px} }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span><span class="full">網頁特效蒐集器</span></div>
+    <span class="count" id="count">載入中…</span>
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="q" type="search" placeholder="搜尋特效、技術、關鍵字…" autocomplete="off" />
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="veil"></div>
+  <div class="wrap inner">
+    <span class="eyebrow">OPEN SOURCE · 可直接拿來用</span>
+    <h1>把最不可思議的<br><span class="grad">網頁特效</span>一次蒐集起來</h1>
+    <p class="lead">由 12 路 AI Agent 並行掃過全網與 GitHub,逐條對抗驗證連結真實性後彙整。每個特效都附 Demo、原始碼與「怎麼放進你的網站」。下面的背景就是其中一種,可即時切換。</p>
+    <div class="heroActions">
+      <a class="btn primary" href="#playground">立即跑跑看 ↓</a>
+      <a class="btn" href="#catalog">瀏覽全部特效</a>
+    </div>
+  </div>
+</div>
+
+<!-- PLAYGROUND -->
+<section class="block" id="playground">
+  <div class="wrap">
+    <div class="kicker">LIVE PLAYGROUND</div>
+    <div class="sectionHead"><h2>立即跑跑看</h2><span class="sub">點下面任一顆,效果會即時在這台機器上跑(WebGL 由 CDN 載入)</span></div>
+    <div class="pgWrap">
+      <div id="pg"></div>
+      <div class="pgBar" id="pgBar">
+        <span class="pill on" data-fx="canvas2d">星座粒子 · 必跑</span>
+        <span class="pill" data-fx="net">Vanta NET</span>
+        <span class="pill" data-fx="waves">Vanta WAVES</span>
+        <span class="pill" data-fx="birds">Vanta BIRDS</span>
+        <span class="pill" data-fx="globe">Vanta GLOBE</span>
+        <span class="pill" data-fx="fog">Vanta FOG</span>
+        <span class="pill" data-fx="halo">Vanta HALO</span>
+        <span class="pill" data-fx="tsparticles">tsParticles</span>
+        <span class="pgStatus" id="pgStatus"><b>星座粒子</b> 運行中</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED -->
+<section class="block" id="featured">
+  <div class="wrap">
+    <div class="kicker">MOST JAW-DROPPING</div>
+    <div class="sectionHead"><h2>精選最震撼</h2><span class="sub">依震撼度排序的前段班</span></div>
+    <div class="grid" id="featuredGrid"></div>
+  </div>
+</section>
+
+<!-- CATALOG -->
+<section class="block" id="catalog">
+  <div class="wrap">
+    <div class="kicker">FULL CATALOG</div>
+    <div class="sectionHead"><h2>完整特效目錄</h2><span class="sub" id="catSub"></span></div>
+    <div id="dataNotice"></div>
+    <div class="chips" id="chips"></div>
+    <div id="catalogBody"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    自己的網站,值得最酷的特效。 · 資料由本機 AI Agent 蒐集並驗證 · 連結若失效歡迎回報重新整理<br/>
+    <span style="opacity:.6">Web Effects Collector — standalone, no build step, open <code>index.html</code> 即可</span>
+  </div>
+</footer>
+
+<script src="./data.js" onerror="window.__noData=true"></script>
+<script>
+/* ============================================================
+   1) HERO — 純 2D canvas 粒子星座(零依賴,保證可跑)
+   ============================================================ */
+(function(){
+  const cv=document.getElementById('hero-canvas'); if(!cv) return;
+  const ctx=cv.getContext('2d'); let W,H,DPR,parts=[],mouse={x:-999,y:-999};
+  function size(){ DPR=Math.min(window.devicePixelRatio||1,2); W=cv.clientWidth; H=cv.clientHeight;
+    cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); seed(); }
+  function seed(){ const n=Math.round(Math.min(120,(W*H)/12000)); parts=[];
+    for(let i=0;i<n;i++) parts.push({x:Math.random()*W,y:Math.random()*H,
+      vx:(Math.random()-.5)*.45,vy:(Math.random()-.5)*.45,r:Math.random()*1.7+.6}); }
+  function tick(){
+    ctx.clearRect(0,0,W,H);
+    for(const p of parts){
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>W)p.vx*=-1; if(p.y<0||p.y>H)p.vy*=-1;
+      const dx=p.x-mouse.x,dy=p.y-mouse.y,d=Math.hypot(dx,dy);
+      if(d<130){ p.x+=dx/d*1.4; p.y+=dy/d*1.4; }
+    }
+    for(let i=0;i<parts.length;i++){
+      for(let j=i+1;j<parts.length;j++){
+        const a=parts[i],b=parts[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy);
+        if(d<128){ const o=(1-d/128)*.5;
+          ctx.strokeStyle='rgba(124,124,255,'+o+')'; ctx.lineWidth=.7;
+          ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); }
+      }
+    }
+    for(const p of parts){ const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*4);
+      g.addColorStop(0,'rgba(160,150,255,.95)'); g.addColorStop(1,'rgba(160,150,255,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(p.x,p.y,p.r*4,0,7); ctx.fill(); }
+    requestAnimationFrame(tick);
+  }
+  addEventListener('resize',size);
+  cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top;});
+  cv.addEventListener('mouseleave',()=>{mouse.x=mouse.y=-999;});
+  size(); tick();
+})();
+
+/* ============================================================
+   2) PLAYGROUND — Vanta / tsParticles 動態載入 + 2D 後援
+   ============================================================ */
+(function(){
+  const pg=document.getElementById('pg'); const bar=document.getElementById('pgBar');
+  const statusEl=document.getElementById('pgStatus');
+  let current=null; const loaded={};
+  const THREE_URL='./lib/three.min.js';
+  const VANTA=n=>'./lib/vanta.'+n+'.min.js';
+  const TSP_URL='./lib/tsparticles.all.bundle.min.js';
+
+  function load(src){ if(loaded[src]) return loaded[src];
+    loaded[src]=new Promise((res,rej)=>{ const s=document.createElement('script');
+      s.src=src; s.onload=()=>res(); s.onerror=()=>rej(new Error('load fail '+src)); document.head.appendChild(s); });
+    return loaded[src]; }
+
+  function destroy(){ try{ current && current.destroy && current.destroy(); }catch(e){} current=null;
+    if(current2d){ cancelAnimationFrame(current2d); current2d=null; } pg.innerHTML=''; }
+
+  let current2d=null;
+  function run2d(){
+    const c=document.createElement('canvas'); c.style.width='100%'; c.style.height='100%'; pg.appendChild(c);
+    const ctx=c.getContext('2d'); let W,H,DPR,P=[];
+    function sz(){ DPR=Math.min(devicePixelRatio||1,2); W=c.clientWidth;H=c.clientHeight;
+      c.width=W*DPR;c.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);
+      P=Array.from({length:Math.round(Math.min(150,W*H/9000))},()=>({x:Math.random()*W,y:Math.random()*H,
+        vx:(Math.random()-.5)*.7,vy:(Math.random()-.5)*.7,r:Math.random()*2+.6,
+        h:Math.random()*60+200})); }
+    sz();
+    function f(){ ctx.fillStyle='rgba(5,6,12,.28)'; ctx.fillRect(0,0,W,H);
+      for(const p of P){ p.x=(p.x+p.vx+W)%W; p.y=(p.y+p.vy+H)%H; }
+      for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){
+        const a=P[i],b=P[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+        if(d<110){ctx.strokeStyle='hsla('+a.h+',90%,70%,'+(1-d/110)*.5+')';ctx.lineWidth=.7;
+          ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}}
+      for(const p of P){ctx.fillStyle='hsla('+p.h+',95%,72%,.9)';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill();}
+      current2d=requestAnimationFrame(f); }
+    f();
+  }
+
+  async function vanta(name,opts){
+    statusEl.innerHTML='<b>載入中…</b> 正在抓 WebGL 模組';
+    await load(THREE_URL); await load(VANTA(name));
+    const fn=window.VANTA && window.VANTA[name.toUpperCase()];
+    if(!fn) throw new Error('VANTA.'+name+' 未就緒');
+    current=fn(Object.assign({el:pg,mouseControls:true,touchControls:true,gyroControls:false,
+      minHeight:200,minWidth:200,scale:1,scaleMobile:1},opts));
+  }
+
+  async function tsp(){
+    statusEl.innerHTML='<b>載入中…</b> tsParticles';
+    await load(TSP_URL);
+    const d=document.createElement('div'); d.id='tsp-host'; d.style.width='100%'; d.style.height='100%'; pg.appendChild(d);
+    current=await window.tsParticles.load({ id:'tsp-host', options:{
+      background:{color:'#05060c'}, fpsLimit:60,
+      particles:{ number:{value:90,density:{enable:true}}, color:{value:['#7c5cff','#19d3ff','#ff5cc8']},
+        links:{enable:true,color:'#5b62b8',distance:140,opacity:.4,width:1},
+        move:{enable:true,speed:1.6,outModes:'bounce'}, size:{value:{min:1,max:3.5}},
+        opacity:{value:.7} },
+      interactivity:{ events:{ onHover:{enable:true,mode:'grab'}, onClick:{enable:true,mode:'push'} },
+        modes:{ grab:{distance:170,links:{opacity:.7}}, push:{quantity:4} } },
+      detectRetina:true } });
+  }
+
+  const FX={
+    canvas2d:{label:'星座粒子',go:()=>{run2d();statusEl.innerHTML='<b>星座粒子</b> 運行中(純 2D,零依賴)';}},
+    net:{label:'Vanta NET',go:()=>vanta('net',{color:0x7c5cff,backgroundColor:0x070710,points:11,maxDistance:23,spacing:16})},
+    waves:{label:'Vanta WAVES',go:()=>vanta('waves',{color:0x3a1d8a,shininess:55,waveHeight:18,waveSpeed:.9,zoom:.92})},
+    birds:{label:'Vanta BIRDS',go:()=>vanta('birds',{backgroundColor:0x070710,color1:0x19d3ff,color2:0xff5cc8,birdSize:1.2,wingSpan:24,quantity:3.5})},
+    globe:{label:'Vanta GLOBE',go:()=>vanta('globe',{color:0x19d3ff,color2:0x7c5cff,backgroundColor:0x070710,size:1.1})},
+    fog:{label:'Vanta FOG',go:()=>vanta('fog',{highlightColor:0x7c5cff,midtoneColor:0xff5cc8,lowlightColor:0x19d3ff,baseColor:0x07070f,blurFactor:.6,speed:1.4,zoom:.9})},
+    halo:{label:'Vanta HALO',go:()=>vanta('halo',{baseColor:0x1a0e4d,backgroundColor:0x05050c,amplitudeFactor:1.5,size:1.4})},
+    tsparticles:{label:'tsParticles',go:tsp},
+  };
+
+  async function switchTo(key,pill){
+    [...bar.querySelectorAll('.pill')].forEach(p=>p.classList.toggle('on',p===pill));
+    destroy();
+    try{ await FX[key].go();
+      if(key!=='canvas2d') statusEl.innerHTML='<b>'+FX[key].label+'</b> 運行中';
+    }catch(e){
+      statusEl.innerHTML='此機器載入 <b>'+FX[key].label+'</b> 失敗,改跑 2D 後援';
+      destroy(); run2d();
+    }
+  }
+
+  bar.addEventListener('click',e=>{ const pill=e.target.closest('.pill'); if(!pill) return;
+    switchTo(pill.dataset.fx,pill); });
+
+  // 預設先跑保證可跑的 2D
+  run2d();
+})();
+
+/* ============================================================
+   3) CATALOG — 讀 window.EFFECTS_CATALOG 渲染
+   ============================================================ */
+(function(){
+  const data=window.EFFECTS_CATALOG;
+  const countEl=document.getElementById('count');
+  const noticeEl=document.getElementById('dataNotice');
+  const fGrid=document.getElementById('featuredGrid');
+  const chipsEl=document.getElementById('chips');
+  const body=document.getElementById('catalogBody');
+  const catSub=document.getElementById('catSub');
+
+  if(!data || !data.categories || !data.total){
+    countEl.textContent='資料整理中';
+    noticeEl.innerHTML='<div class="notice">背景 Agent 仍在驗證連結中(或 data.js 尚未產生)。完成後重新整理本頁即可看到完整目錄。上方的 Playground 已經可以玩了。</div>';
+    document.getElementById('featured').classList.add('hidden');
+    return;
+  }
+
+  countEl.textContent=data.total+' 個特效';
+  catSub.textContent='共 '+data.categories.length+' 類 · '+data.total+' 個,皆已對抗驗證連結';
+
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  function embedSrc(e){
+    const u=e.demoUrl||''; const t=e.embeddable;
+    if(t==='shadertoy'){ const m=u.match(/shadertoy\.com\/view\/([A-Za-z0-9]+)/);
+      if(m) return 'https://www.shadertoy.com/embed/'+m[1]+'?gui=true&paused=false&muted=true'; }
+    if(t==='codepen'){ const m=u.match(/codepen\.io\/([^\/]+)\/(?:pen|full|details)\/([A-Za-z0-9]+)/);
+      if(m) return 'https://codepen.io/'+m[1]+'/embed/'+m[2]+'?default-tab=result'; }
+    if(t==='iframe' && u) return u;
+    return '';
+  }
+
+  function card(e){
+    const div=document.createElement('div'); div.className='card';
+    div.dataset.text=(e.name+' '+(e.tagline||'')+' '+(e.description||'')+' '+(e.tech||[]).join(' ')).toLowerCase();
+    const wow=Math.max(0,Math.min(10,e.wowFactor||0));
+    const emb=embedSrc(e);
+    const tags=(e.tech||[]).slice(0,5).map(t=>'<span class="tag">'+esc(t)+'</span>').join('');
+    const badge = emb ? '<span class="badge embed">可內嵌</span>' : '<span class="badge no">外開</span>';
+    const actions=[];
+    if(e.demoUrl) actions.push('<a class="btn primary sm" target="_blank" rel="noopener" href="'+esc(e.demoUrl)+'">開啟 Demo ↗</a>');
+    if(e.githubUrl) actions.push('<a class="btn sm" target="_blank" rel="noopener" href="'+esc(e.githubUrl)+'">GitHub ↗</a>');
+    if(emb) actions.push('<button class="btn ghost sm" data-embed>內嵌預覽</button>');
+    if(e.howToUse) actions.push('<button class="btn ghost sm" data-how>怎麼用</button>');
+
+    div.innerHTML=
+      '<div class="toprow"><div><h3>'+esc(e.name)+'</h3>'+
+        (e.tagline?'<div class="tagline">'+esc(e.tagline)+'</div>':'')+'</div>'+badge+'</div>'+
+      '<div class="wow">震撼 '+wow+'/10<span class="wowbar"><i style="width:'+(wow*10)+'%"></i></span></div>'+
+      '<div class="desc">'+esc(e.description||'')+'</div>'+
+      (tags?'<div class="tags">'+tags+'</div>':'')+
+      '<div class="cardActions">'+actions.join('')+'</div>'+
+      (e.howToUse?'<div class="how">怎麼放進你的網站:\n'+esc(e.howToUse)+'</div>':'')+
+      (emb?'<div class="embedBox"><div class="embedNote">內嵌預覽(部分站台會擋 iframe,擋住請改用「開啟 Demo」)</div></div>':'');
+
+    const howBtn=div.querySelector('[data-how]'); const howEl=div.querySelector('.how');
+    if(howBtn) howBtn.addEventListener('click',()=>howEl.classList.toggle('show'));
+    const embBtn=div.querySelector('[data-embed]'); const embBox=div.querySelector('.embedBox');
+    if(embBtn) embBtn.addEventListener('click',()=>{
+      if(!embBox.classList.contains('loaded')){
+        const f=document.createElement('iframe'); f.loading='lazy'; f.src=emb;
+        f.allow='accelerometer; gyroscope; autoplay; fullscreen'; embBox.appendChild(f);
+        embBox.classList.add('loaded'); embBtn.textContent='收合預覽';
+      } else { embBtn.textContent=embBox.classList.contains('show')?'內嵌預覽':'收合預覽'; }
+      embBox.classList.toggle('show');
+    });
+    return div;
+  }
+
+  // featured
+  (data.featured||[]).forEach(e=>fGrid.appendChild(card(e)));
+
+  // category chips + groups
+  let active='all';
+  const chip=(key,label)=>{ const c=document.createElement('span'); c.className='chip'+(key==='all'?' on':'');
+    c.textContent=label; c.dataset.cat=key; chipsEl.appendChild(c); return c; };
+  chip('all','全部');
+  data.categories.forEach(cat=>{ if(cat.effects.length) chip(cat.key,cat.title+'（'+cat.effects.length+'）'); });
+
+  data.categories.forEach(cat=>{
+    if(!cat.effects.length) return;
+    const group=document.createElement('div'); group.className='catGroup'; group.dataset.cat=cat.key;
+    group.innerHTML='<div class="catHead">'+esc(cat.title)+' <span class="num">'+cat.effects.length+'</span></div>';
+    const grid=document.createElement('div'); grid.className='grid';
+    cat.effects.forEach(e=>grid.appendChild(card(e)));
+    group.appendChild(grid); body.appendChild(group);
+  });
+
+  function applyFilter(){
+    const q=(document.getElementById('q').value||'').trim().toLowerCase();
+    document.querySelectorAll('.catGroup').forEach(g=>{
+      let any=false;
+      g.querySelectorAll('.card').forEach(c=>{
+        const okCat=(active==='all'||g.dataset.cat===active);
+        const okQ=!q||c.dataset.text.indexOf(q)>-1;
+        const show=okCat&&okQ; c.classList.toggle('hidden',!show); if(show)any=true;
+      });
+      g.classList.toggle('hidden',!any);
+    });
+    // featured 只受搜尋影響
+    let fAny=false;
+    fGrid.querySelectorAll('.card').forEach(c=>{ const show=!q||c.dataset.text.indexOf(q)>-1;
+      c.classList.toggle('hidden',!show); if(show)fAny=true; });
+    document.getElementById('featured').classList.toggle('hidden',!fAny);
+  }
+
+  chipsEl.addEventListener('click',e=>{ const c=e.target.closest('.chip'); if(!c) return;
+    active=c.dataset.cat; [...chipsEl.children].forEach(x=>x.classList.toggle('on',x===c)); applyFilter(); });
+  document.getElementById('q').addEventListener('input',applyFilter);
+})();
+</script>
+</body>
+</html>
