@@ -306,15 +306,20 @@
   async function tsp(){
     statusEl.innerHTML='<b>載入中…</b> tsParticles';
     await load(TSP_URL);
+    // @tsparticles/all 這個 bundle 必須先 loadAll() 註冊所有 shape/move/links drawer,
+    // 否則只會建出粒子模型卻完全不繪製(畫布全透明,看起來像沒跑)。
+    if(window.loadAll && !window.__tspAllLoaded){ await window.loadAll(window.tsParticles); window.__tspAllLoaded=true; }
     const d=document.createElement('div'); d.id='tsp-host'; d.style.width='100%'; d.style.height='100%'; pg.appendChild(d);
     current=await window.tsParticles.load({ id:'tsp-host', options:{
-      background:{color:'#05060c'}, fpsLimit:60,
-      particles:{ number:{value:90,density:{enable:true}}, color:{value:['#7c5cff','#19d3ff','#ff5cc8']},
-        links:{enable:true,color:'#5b62b8',distance:140,opacity:.4,width:1},
-        move:{enable:true,speed:1.6,outModes:'bounce'}, size:{value:{min:1,max:3.5}},
-        opacity:{value:.7} },
+      // fullScreen 預設 true 會把 canvas 釘到整個視窗、壓在內容後面 → 必須關掉,才會畫在 box 裡。
+      fullScreen:{enable:false}, pauseOnBlur:false, pauseOnOutsideViewport:false,
+      background:{color:'transparent'}, fpsLimit:60,
+      particles:{ number:{value:110}, color:{value:['#7c5cff','#19d3ff','#ff5cc8']},
+        links:{enable:true,color:'#6b72c8',distance:150,opacity:.45,width:1},
+        move:{enable:true,speed:1.8,outModes:'bounce'}, size:{value:{min:1.5,max:4}},
+        opacity:{value:.8} },
       interactivity:{ events:{ onHover:{enable:true,mode:'grab'}, onClick:{enable:true,mode:'push'} },
-        modes:{ grab:{distance:170,links:{opacity:.7}}, push:{quantity:4} } },
+        modes:{ grab:{distance:180,links:{opacity:.8}}, push:{quantity:4} } },
       detectRetina:true } });
   }
 
