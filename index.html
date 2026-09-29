@@ -4,22 +4,22 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>網頁特效蒐集器 — Web Effects Collector</title>
-<meta name="description" content="91 個開源網頁特效彙整成一頁,分 12 類(流體/Shader/Three.js/粒子/捲動敘事/生成藝術…),每個附 Demo、原始碼與整合說明,內建零依賴 Playground。" />
+<meta name="description" content="128 個開源網頁特效與個人網站彙整成一頁,分 13 類(個人網站/流體/Shader/Three.js/粒子/捲動敘事/生成藝術…),每個附 Demo、原始碼與說明,內建零依賴 Playground。" />
 <link rel="canonical" href="https://yazelin.github.io/web-effects-collector/" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Web Effects Collector" />
 <meta property="og:url" content="https://yazelin.github.io/web-effects-collector/" />
-<meta property="og:title" content="網頁特效蒐集器 — 91 個開源網頁特效" />
-<meta property="og:description" content="91 個開源網頁特效、分 12 類,每個附 Demo / 原始碼 / 整合說明,內建 Playground。" />
+<meta property="og:title" content="網頁特效蒐集器 — 128 個開源網頁特效與個人網站" />
+<meta property="og:description" content="128 個開源網頁特效與個人網站、分 13 類,每個附 Demo / 原始碼 / 說明,內建 Playground。" />
 <meta property="og:image" content="https://yazelin.github.io/web-effects-collector/og.jpg" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="網頁特效蒐集器 — 91 個開源網頁特效" />
-<meta name="twitter:description" content="91 個開源網頁特效、分 12 類,附 Demo / 原始碼 / 整合說明。" />
+<meta name="twitter:title" content="網頁特效蒐集器 — 128 個開源網頁特效與個人網站" />
+<meta name="twitter:description" content="128 個開源網頁特效與個人網站、分 13 類,附 Demo / 原始碼 / 說明。" />
 <meta name="twitter:image" content="https://yazelin.github.io/web-effects-collector/og.jpg" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebSite","name":"網頁特效蒐集器 Web Effects Collector","url":"https://yazelin.github.io/web-effects-collector/","inLanguage":"zh-Hant","description":"91 個開源網頁特效彙整,分 12 類,每個附 Demo、原始碼與整合說明。","author":{"@type":"Person","name":"林亞澤 Yaze","url":"https://yazelin.github.io/"}}
+{"@context":"https://schema.org","@type":"WebSite","name":"網頁特效蒐集器 Web Effects Collector","url":"https://yazelin.github.io/web-effects-collector/","inLanguage":"zh-Hant","description":"128 個開源網頁特效與個人網站彙整,分 13 類,每個附 Demo、原始碼與說明。","author":{"@type":"Person","name":"林亞澤 Yaze","url":"https://yazelin.github.io/"}}
 </script>
 <style>
   :root{
@@ -116,6 +116,7 @@
   .card .toprow{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
   .card h3{margin:0;font-size:18px;font-weight:750;letter-spacing:.2px}
   .card .tagline{color:var(--a2);font-size:13px;font-weight:600;margin-top:2px}
+  .card .thumb{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;margin-bottom:10px;background:#111}
   .card .desc{color:var(--muted);font-size:13.5px;flex:1}
   .tags{display:flex;flex-wrap:wrap;gap:6px}
   .tag{font-size:11px;color:var(--dim);border:1px solid var(--line);padding:2px 8px;border-radius:6px}
@@ -388,7 +389,7 @@
     return;
   }
 
-  countEl.textContent=data.total+' 個特效';
+  countEl.textContent=data.total+' 個特效與個人網站';
   catSub.textContent='共 '+data.categories.length+' 類 · '+data.total+' 個,皆已對抗驗證連結';
 
   const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -417,13 +418,14 @@
     if(e.howToUse) actions.push('<button class="btn ghost sm" data-how>怎麼用</button>');
 
     div.innerHTML=
+      (e.image?'<a target="_blank" rel="noopener" href="'+esc(e.demoUrl)+'"><img class="thumb" loading="lazy" src="'+esc(e.image)+'" alt="'+esc(e.name)+' 的畫面"></a>':'')+
       '<div class="toprow"><div><h3>'+esc(e.name)+'</h3>'+
         (e.tagline?'<div class="tagline">'+esc(e.tagline)+'</div>':'')+'</div>'+badge+'</div>'+
       '<div class="wow">震撼 '+wow+'/10<span class="wowbar"><i style="width:'+(wow*10)+'%"></i></span></div>'+
       '<div class="desc">'+esc(e.description||'')+'</div>'+
       (tags?'<div class="tags">'+tags+'</div>':'')+
       '<div class="cardActions">'+actions.join('')+'</div>'+
-      (e.howToUse?'<div class="how">怎麼放進你的網站:\n'+esc(e.howToUse)+'</div>':'')+
+      (e.howToUse?'<div class="how">'+(e.image?'怎麼改成你的:':'怎麼放進你的網站:')+'\n'+esc(e.howToUse)+'</div>':'')+
       (emb?'<div class="embedBox"><div class="embedNote">內嵌預覽(部分站台會擋 iframe,擋住請改用「開啟 Demo」)</div></div>':'');
 
     const howBtn=div.querySelector('[data-how]'); const howEl=div.querySelector('.how');
