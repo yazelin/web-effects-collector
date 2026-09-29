@@ -6,7 +6,7 @@
 
 ## 內容
 
-- **90 個特效,分 12 類**:流體 / 液態模擬、GLSL Shader、Three.js / R3F 3D、捲動敘事、粒子系統、Codrops 創意 UI、生成藝術、純 CSS / Houdini、一行式 WebGL 背景、地球儀資料視覺、文字動畫、游標互動。
+- **91 個特效,分 12 類**:流體 / 液態模擬、GLSL Shader、Three.js / R3F 3D、捲動敘事、粒子系統、Codrops 創意 UI、生成藝術、純 CSS / Houdini、一行式 WebGL 背景、地球儀資料視覺、文字動畫、游標互動。
 - 每張卡片:震撼度、技術標籤、Demo / GitHub 連結;可內嵌者能直接在頁面 iframe 預覽;附整合說明。
 - 內建「立即跑跑看」Playground:零依賴 2D 星座粒子,加上 Vanta(NET / WAVES / BIRDS / GLOBE / FOG / HALO)與 tsParticles,點一下即時切換。
 
